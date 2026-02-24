@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crime Hotspot Analyzer - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-particles::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23007bff' fill-opacity='0.02'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            animation: backgroundMove 20s linear infinite;
+        }
+
+        @keyframes backgroundMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-60px, -60px); }
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 2rem 0;
+            box-shadow: 0 0 30px rgba(0, 123, 255, 0.1);
+        }
+
+        .logo {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00d4ff, #007bff, #6610f2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(0, 123, 255, 0.1);
+            border-left-color: #00d4ff;
+            color: #00d4ff;
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+        }
+
+        .nav-item i {
+            margin-right: 1rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 123, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #007bff, #00d4ff, #6610f2, #007bff);
+            background-size: 300% 100%;
+            animation: gradientMove 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientMove {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 100% 0%; }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #00d4ff, #007bff, #6610f2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 123, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #007bff, #00d4ff, #6610f2);
+            transition: left 0.3s ease;
+        }
+
+        .card:hover::before {
+            left: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 123, 255, 0.2);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+        }
+
+        .card h2 i {
+            margin-right: 1rem;
+            color: #00d4ff;
+        }
+
+        .upload-area {
+            border: 2px dashed #007bff;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            background: rgba(0, 123, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.15);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #00d4ff;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 1rem;
+        }
+
+        .upload-button {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 123, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .upload-button:hover::before {
+            left: 100%;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.4);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        th {
+            background: linear-gradient(45deg, rgba(0, 123, 255, 0.2), rgba(0, 212, 255, 0.2));
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(0, 123, 255, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #00d4ff;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(0, 123, 255, 0.3);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .form-control option {
+            background: #1a1a2e;
+            color: #ffffff;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 123, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 123, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            box-shadow: 0 5px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 30px rgba(108, 117, 125, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0, 123, 255, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #007bff, #00d4ff, #6610f2, #007bff);
+            background-size: 300% 100%;
+            animation: gradientMove 3s ease-in-out infinite;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 123, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00d4ff, #007bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .card:nth-child(even) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(odd) {
+            animation-delay: 0.2s;
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg); 
+                opacity: 0; 
+            }
+            50% { 
+                transform: translateY(-20px) rotate(180deg); 
+                opacity: 1; 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 1rem 0;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #file-info {
+            background: rgba(0, 123, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        #file-info p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.5rem;
+        }
+
+        #file-info strong {
+            color: #00d4ff;
+        }
+
+        /* Map container styles */
+        .map-container {
+            height: 500px;
+            background: radial-gradient(circle at center, rgba(0, 123, 255, 0.1), rgba(22, 33, 62, 0.8));
+            border-radius: 15px;
+            border: 2px solid rgba(0, 123, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .map-container:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .map-placeholder {
+            text-align: center;
+            color: #00d4ff;
+            font-size: 1.2rem;
+        }
+
+        /* Hotspot list styles */
+        .hotspot-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .hotspot-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .hotspot-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .hotspot-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            border-radius: 4px;
+        }
+
+        .hotspot-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #00d4ff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hotspot-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .hotspot-item:hover::before {
+            left: 100%;
+        }
+
+        .hotspot-item:hover {
+            background: rgba(0, 123, 255, 0.1);
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+        }
+
+        .hotspot-rank {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+
+        .hotspot-location {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .hotspot-incidents {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="floating-particles"></div>
+    
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-shield-alt"></i> InteliSafe</h1>
+            </div>
+            <nav>
+                <div class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-section="upload">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Upload Data</span>
+                </div>
+                <div class="nav-item" data-section="table">
+                    <i class="fas fa-table"></i>
+                    <span>Crime Data</span>
+                </div>
+                <div class="nav-item" data-section="prediction">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <span>Hotspot Analysis</span>
+                </div>
+                <div class="nav-item" data-section="accounts">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Accounts</span>
+                </div>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Admin Dashboard</h1>
+                <p>Crime Hotspot Analysis & Management System</p>
+            </div>
+
+            <div id="dashboard-section" class="section">
+                <div class="stats-grid">
+                    <div class="stat-card pulse">
+                        <div class="stat-number">1,247</div>
+                        <div class="stat-label">Total Crime Records</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">23</div>
+                        <div class="stat-label">Active Hotspots</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">89%</div>
+                        <div class="stat-label">Prediction Accuracy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">System Users</div>
+                    </div>
+                </div>
+
+                <!-- Map Integration Card -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                    <div class="card">
+                        <h2><i class="fas fa-map-marked-alt"></i> Crime Hotspot Map</h2>
+                        <div class="map-container">
+                            <div class="map-placeholder">
+                                <div style="font-size: 4rem; margin-bottom: 20px; color: #00d4ff;">🗺️</div>
+                                <p style="color: #00d4ff; font-size: 1.2rem; margin-bottom: 10px;">Interactive Crime Hotspot Map</p>
+                                <p style="opacity: 0.7; margin-top: 10px;">Click areas to view detailed crime statistics</p>
+                                <button class="btn" style="margin-top: 20px; padding: 0.75rem 1.5rem;" onclick="loadMap()">Load Map View</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2><i class="fas fa-fire"></i> Top Hotspots</h2>
+                        <div class="hotspot-list">
+                            <div class="hotspot-item">
+                                <div class="hotspot-rank">#1</div>
+                                <div class="hotspot-location">Downtown District</div>
+                                <div class="hotspot-incidents">156 incidents this month</div>
+                            </div>
+                            <div class="hotspot-item">
+                                <div class="hotspot-rank">#2</div>
+                                <div class="hotspot-location">Industrial Area</div>
+                                <div class="hotspot-incidents">134 incidents this month</div>
+                            </div>
+                            <div class="hotspot-item">
+                                <div class="hotspot-rank">#3</div>
+                                <div class="hotspot-location">University Campus</div>
+                                <div class="hotspot-incidents">98 incidents this month</div>
+                            </div>
+                            <div class="hotspot-item">
+                                <div class="hotspot-rank">#4</div>
+                                <div class="hotspot-location">Shopping Mall Area</div>
+                                <div class="hotspot-incidents">87 incidents this month</div>
+                            </div>
+                            <div class="hotspot-item">
+                                <div class="hotspot-rank">#5</div>
+                                <div class="hotspot-location">Residential Zone A</div>
+                                <div class="hotspot-incidents">76 incidents this month</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="upload-section" class="section hidden">
+                <div class="card">
+                    <h2><i class="fas fa-cloud-upload-alt"></i> Upload Crime Data</h2>
+                    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">
+                            <i class="fas fa-file-csv"></i>
+                        </div>
+                        <div class="upload-text">
+                            Click to upload or drag and drop your CSV file here
+                        </div>
+                        <button class="upload-button" type="button">Choose File</button>
+                        <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                    </div>
+                    <div id="file-info" class="mt-3" style="margin-top: 1rem; display: none;">
+                        <p><strong>Selected file:</strong> <span id="file-name"></span></p>
+                        <p><strong>Size:</strong> <span id="file-size"></span></p>
+                        <button class="btn" onclick="uploadFile()">Upload File</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="table-section" class="section hidden">
+                <div class="card">
+                    <h2><i class="fas fa-table"></i> Crime Data Table</h2>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                    <th>Severity</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="crime-table-body">
+                                <tr>
+                                    <td>2024-08-15</td>
+                                    <td>Theft</td>
+                                    <td>23.0225</td>
+                                    <td>72.5714</td>
+                                    <td><span style="color: #ffc107;">Medium</span></td>
+                                    <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>2024-08-14</td>
+                                    <td>Assault</td>
+                                    <td>23.0330</td>
+                                    <td>72.5850</td>
+                                    <td><span style="color: #dc3545;">High</span></td>
+                                    <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>2024-08-13</td>
+                                    <td>Vandalism</td>
+                                    <td>23.0200</td>
+                                    <td>72.5700</td>
+                                    <td><span style="color: #28a745;">Low</span></td>
+                                    <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="prediction-section" class="section hidden">
+                <div class="card">
+                    <h2><i class="fas fa-map-marked-alt"></i> Hotspot Prediction</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gridSize">Grid Size (degrees)</label>
+                            <input type="number" id="gridSize" class="form-control" value="0.01" step="0.001">
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold">Threshold</label>
+                            <input type="number" id="threshold" class="form-control" value="3" min="1">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn" onclick="runPrediction()">Run Analysis</button>
+                        </div>
+                    </div>
+                    <div id="prediction-results" style="margin-top: 2rem; display: none;">
+                        <div class="card" style="background: rgba(0, 123, 255, 0.1); margin-bottom: 0;">
+                            <h3 style="color: #00d4ff;">Analysis Results</h3>
+                            <p><strong>Hotspots Identified:</strong> <span id="hotspot-count">0</span></p>
+                            <p><strong>High-Risk Areas:</strong> <span id="risk-areas">0</span></p>
+                            <p><strong>Recommendation:</strong> <span id="recommendation">Run analysis to get recommendations</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="accounts-section" class="section hidden">
+                <div class="card">
+                    <h2><i class="fas fa-users"></i> Manage Accounts</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" class="form-control" placeholder="Enter username">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="form-control" placeholder="Enter email">
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select id="role" class="form-control">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                                <option value="analyst">Analyst</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn" onclick="addUser()">Add User</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container" style="margin-top: 2rem;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>admin</td>
+                                    <td>admin@crimescope.com</td>
+                                    <td>Admin</td>
+                                    <td><span style="color: #28a745; font-weight: bold;">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-right: 0.5rem;">Edit</button>
+                                        <button class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(45deg, #dc3545, #c82333);">Delete</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>analyst1</td>
+                                    <td>analyst@crimescope.com</td>
+                                    <td>Analyst</td>
+                                    <td><span style="color: #28a745; font-weight: bold;">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-right: 0.5rem;">Edit</button>
+                                        <button class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem; background: linear-gradient(45deg, #dc3545, #c82333);">Delete</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                document.querySelectorAll('.section').forEach(section => section.classList.add('hidden'));
+                const sectionId = item.dataset.section + '-section';
+                document.getElementById(sectionId).classList.remove('hidden');
+            });
+        });
+
+        // File upload functionality
+        const uploadArea = document.querySelector('.upload-area');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('file-info');
+
+        if (fileInput) {
+            fileInput.addEventListener('change', handleFileSelect);
+        }
+
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileSelect();
+                }
+            });
+        }
+
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (file) {
+                document.getElementById('file-name').textContent = file.name;
+                document.getElementById('file-size').textContent = (file.size / 1024).toFixed(2) + ' KB';
+                fileInfo.style.display = 'block';
+            }
+        }
+
+        function uploadFile() {
+            const file = fileInput.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append("dataset", file); // must match multer field name
+
+                const button = event.target;
+                button.textContent = "Uploading...";
+                button.disabled = true;
+
+                fetch("http://localhost:3000/api/admin/upload-dataset", { // match backend route
+                    method: "POST",
+                    body: formData,
+                    
+                    
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        button.textContent = "Upload Complete!";
+                        button.style.background = "linear-gradient(45deg, #28a745, #20c997)";
+                    } else {
+                        alert("Error: " + data.message);
+                        button.textContent = "Upload Failed";
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Upload failed!");
+                })
+                .finally(() => {
+                    setTimeout(() => {
+                        button.textContent = "Upload File";
+                        button.disabled = false;
+                        button.style.background = "linear-gradient(45deg, #007bff, #00d4ff)";
+                        fileInfo.style.display = "none";
+                        fileInput.value = "";
+                    }, 2000);
+                });
+            }
+        }
+
+
+
+        function runPrediction() {
+            const gridSize = document.getElementById('gridSize').value;
+            const threshold = document.getElementById('threshold').value;
+            const button = event.target;
+            const resultsDiv = document.getElementById('prediction-results');
+            
+            button.textContent = 'Analyzing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                document.getElementById('hotspot-count').textContent = Math.floor(Math.random() * 20) + 10;
+                document.getElementById('risk-areas').textContent = Math.floor(Math.random() * 15) + 5;
+                document.getElementById('recommendation').textContent = 'Increase patrol frequency in identified hotspots during evening hours.';
+                
+                resultsDiv.style.display = 'block';
+                button.textContent = 'Run Analysis';
+                button.disabled = false;
+            }, 3000);
+        }
+
+        function addUser() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const role = document.getElementById('role').value;
+            
+            if (username && email) {
+                alert(`User ${username} added successfully!`);
+                
+                document.getElementById('username').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('role').value = 'user';
+            } else {
+                alert('Please fill in all required fields.');
+            }
+        }
+
+        function loadMap() {
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Loading...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.textContent = 'Map Loaded!';
+                button.style.background = 'linear-gradient(45deg, #28a745, #20c997)';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                    button.style.background = 'linear-gradient(45deg, #007bff, #00d4ff)';
+                }, 2000);
+            }, 2000);
+        }
+
+        // Animate stats on page load
+        function animateStats() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const finalValue = stat.textContent;
+                if (!isNaN(parseInt(finalValue.replace(/[^\d]/g, '')))) {
+                    const finalNum = parseInt(finalValue.replace(/[^\d]/g, ''));
+                    let currentNum = 0;
+                    const increment = finalNum / 50;
+                    
+                    const timer = setInterval(() => {
+                        currentNum += increment;
+                        if (currentNum >= finalNum) {
+                            stat.textContent = finalValue;
+                            clearInterval(timer);
+                        } else {
+                            if (finalValue.includes('%')) {
+                                stat.textContent = Math.floor(currentNum) + '%';
+                            } else if (finalValue.includes(',')) {
+                                stat.textContent = Math.floor(currentNum).toLocaleString();
+                            } else {
+                                stat.textContent = Math.floor(currentNum);
+                            }
+                        }
+                    }, 30);
+                }
+            });
+        }
+
+        function createParticles() {
+            const container = document.querySelector('.floating-particles');
+            if (container) {
+                for (let i = 0; i < 15; i++) {
+                    const particle = document.createElement('div');
+                    particle.style.cssText = `
+                        position: absolute;
+                        width: 4px;
+                        height: 4px;
+                        background: rgba(0, 212, 255, 0.3);
+                        border-radius: 50%;
+                        left: ${Math.random() * 100}%;
+                        top: ${Math.random() * 100}%;
+                        animation: float ${3 + Math.random() * 4}s ease-in-out infinite;
+                        animation-delay: ${Math.random() * 6}s;
+                    `;
+                    container.appendChild(particle);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            setTimeout(animateStats, 500);
+        });
+    </script>
+</body>
+</html>
